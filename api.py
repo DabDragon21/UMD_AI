@@ -8,7 +8,7 @@ from langchain_community.document_loaders import PyMuPDFLoader
 from langchain.chains.retrieval_qa.base import RetrievalQA
 
 
-api_key = st.secrets("key")
+api_key = st.secrets["key"]
 os.environ["GOOGLE_API_KEY"] = api_key
 
 #load file
