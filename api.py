@@ -6,8 +6,6 @@ from langchain.vectorstores import FAISS
 from langchain_google_genai import GoogleGenerativeAIEmbeddings, GoogleGenerativeAI
 from langchain_community.document_loaders import PyMuPDFLoader
 from langchain.chains.retrieval_qa.base import RetrievalQA
-import tkinter as tk
-from tkinter import filedialog
 
 
 api_key = st.secrets("key")
