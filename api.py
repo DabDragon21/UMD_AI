@@ -12,10 +12,8 @@ from tkinter import filedialog
 
 load_dotenv()
 
-api_key = os.getenv("key")
+api_key = st.secrets("key")
 os.environ["GOOGLE_API_KEY"] = api_key
-
-client = genai.Client(api_key=api_key)
 
 #load file
 databases = [
