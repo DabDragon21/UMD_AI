@@ -1,5 +1,6 @@
 from dotenv import load_dotenv
 import os
+import streamlit as st
 from google import genai
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_chroma import Chroma
@@ -63,32 +64,35 @@ QA_chain = RetrievalQA.from_chain_type(
     chain_type="stuff"
 )
 
-window = tk.Tk()
-window.title("AI Lesson Assistant")
-window.geometry("600x400")
 
-# Label above the button
-label = tk.Label(window, text="📎 Upload your educational PDF for analysis:", font=("Arial", 12))
-label.pack(pady=10)
 
-# Text area for output
-output_text = tk.Text(window, height=15, width=70, wrap="word")
-output_text.pack(pady=10)
 
-def upload_file():
-    filepath = filedialog.askopenfilename()
-    if filepath:
-        input_loader = PyMuPDFLoader(filepath)
-        input_docs = input_loader.load()
-        input_txt = "".join(doc.page_content for doc in input_docs)
-        truncated = input_txt[:8000]
-        prompt = input("Enter your prompt here: ")
-        response = LLM.invoke(f"Update this lesson plan based on this prompt {prompt}: {truncated}")
+def main():
+    st.set_page_config(page_title="AI Lesson Assistant", layout="centered")
+    st.title("📚 AI Lesson Assistant")
 
-        output_text.delete("1.0", tk.END)
-        output_text.insert(tk.END, response)
+    st.markdown("Upload your educational PDF and enter a prompt to update the lesson plan.")
 
-button = tk.Button(window, text="Upload PDF", command = upload_file)
-button.pack()
+    uploaded_file = st.file_uploader("Choose a PDF file", type=["pdf"])
 
-window.mainloop()
+    prompt = st.text_area("Enter your prompt", height=100)
+
+    if uploaded_file and prompt:
+        if st.button("Generate Updated Lesson Plan"):
+            with st.spinner("Processing..."):
+                # Save file temporarily to load it
+                with open("temp_uploaded.pdf", "wb") as f:
+                    f.write(uploaded_file.read())
+
+                loader = PyMuPDFLoader("temp_uploaded.pdf")
+                docs = loader.load()
+                input_txt = "".join(doc.page_content for doc in docs)
+                truncated = input_txt[:8000]
+
+                response = LLM.invoke(f"Update this lesson plan based on this prompt: {prompt}: {truncated}")
+                st.text_area("Updated Lesson Plan", response, height=300)
+
+
+if __name__ == "__main__":
+    main()
+
