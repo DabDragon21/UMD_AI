@@ -1,4 +1,3 @@
-from dotenv import load_dotenv
 import os
 import streamlit as st
 from google import genai
@@ -9,8 +8,6 @@ from langchain_community.document_loaders import PyMuPDFLoader
 from langchain.chains.retrieval_qa.base import RetrievalQA
 import tkinter as tk
 from tkinter import filedialog
-
-load_dotenv()
 
 api_key = st.secrets("key")
 os.environ["GOOGLE_API_KEY"] = api_key
