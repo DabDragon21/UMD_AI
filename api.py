@@ -2,21 +2,12 @@ import os
 import streamlit as st
 import google.generativeai as genai
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_chroma import Chroma
+from langchain.vectorstores import FAISS
 from langchain_google_genai import GoogleGenerativeAIEmbeddings, GoogleGenerativeAI
 from langchain_community.document_loaders import PyMuPDFLoader
 from langchain.chains.retrieval_qa.base import RetrievalQA
 import tkinter as tk
 from tkinter import filedialog
-
-import sys
-
-# Patch sqlite for Chroma
-try:
-    __import__("pysqlite3")
-    sys.modules["sqlite3"] = sys.modules.pop("pysqlite3")
-except ImportError:
-    pass
 
 
 api_key = st.secrets("key")
@@ -31,13 +22,13 @@ databases = [
     "CS_Pedagogy.pdf",
     "CS_Content.pdf"
 ]
-vectorstore_path = "edu_chroma_index"
+vectorstore_path = "edu_faiss_index"
 embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
 
 # load saved vector or store new vectors
 if os.path.exists(vectorstore_path):
     print("🔄 Loading cached vectorstore...")
-    vectorstore = Chroma(persist_directory=vectorstore_path, embedding_function=embeddings)
+    vectorstore = FAISS.load_local(vectorstore_path, embeddings)
 else:
     print("⚙️ Building new vectorstore...")
     all_bases = []
@@ -51,13 +42,10 @@ else:
     chunks = splitter.split_documents(all_bases)
 
     # Create vectorstore and save
-    vectorstore = Chroma.from_documents(
-        documents=chunks,
-        embedding=embeddings,
-        persist_directory=vectorstore_path
-    )
-    vectorstore.persist()
+    vectorstore = FAISS.from_documents(chunks, embeddings)
+    vectorstore.save_local(vectorstore_path)
     print("Vectorstore saved")
+    st.write("Vectorstore saved")
 
 #set up LLM
 LLM = GoogleGenerativeAI(model="gemini-2.5-pro")
