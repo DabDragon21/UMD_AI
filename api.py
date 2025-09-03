@@ -9,6 +9,16 @@ from langchain.chains.retrieval_qa.base import RetrievalQA
 import tkinter as tk
 from tkinter import filedialog
 
+import sys
+
+# Patch sqlite for Chroma
+try:
+    __import__("pysqlite3")
+    sys.modules["sqlite3"] = sys.modules.pop("pysqlite3")
+except ImportError:
+    pass
+
+
 api_key = st.secrets("key")
 os.environ["GOOGLE_API_KEY"] = api_key
 
