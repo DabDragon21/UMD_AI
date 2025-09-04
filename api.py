@@ -26,7 +26,7 @@ embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
 # load saved vector or store new vectors
 if os.path.exists(vectorstore_path):
     print("🔄 Loading cached vectorstore...")
-    vectorstore = FAISS.load_local(vectorstore_path, embeddings)
+    vectorstore = FAISS.load_local(vectorstore_path, embeddings, allow_dangerous_deserialization=True)
 else:
     print("⚙️ Building new vectorstore...")
     all_bases = []
