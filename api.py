@@ -81,11 +81,10 @@ def run_rag(vectorstore, prompt_text):
     # Cast FAISS vectorstore to retriever
     retriever = vectorstore.as_retriever(search_kwargs={"k": 4})
 
-    # Retrieve relevant documents
-    docs = retriever.get_relevant_documents(prompt_text)
+    # Retrieve relevant documents (callable)
+    docs = retriever(prompt_text)
     context_text = "\n\n".join([doc.page_content for doc in docs])
 
-    # Build final prompt
     final_prompt = f"""
 You are an expert educational assistant.
 Use the following research excerpts to improve the lesson plan.
@@ -99,10 +98,8 @@ Lesson plan and request:
 """
 
     # Generate text using ChatOpenAI
-    response = LLM(final_prompt)  # __call__ is correct
+    response = LLM(final_prompt)
     return response
-
-
 # -----------------------
 # Streamlit UI
 # -----------------------
