@@ -6,7 +6,8 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import FAISS
 from langchain_google_genai import GoogleGenerativeAIEmbeddings, GoogleGenerativeAI
 from langchain_community.document_loaders import PyMuPDFLoader
-from langchain.chains import RetrievalQA
+from langchain.chains import create_retrieval_chain
+from langchain.chains.combine_documents import create_stuff_documents_chain
 
 st.write("LangChain community loaded")
 
@@ -51,12 +52,17 @@ else:
 LLM = GoogleGenerativeAI(model="gemini-2.5-pro")
 
 #build RAG
-QA_chain = RetrievalQA.from_chain_type(
+retriever = vectorstore.as_retriever()
+
+document_chain = create_stuff_documents_chain(
     llm=LLM,
-    retriever=vectorstore.as_retriever(),
-    chain_type="stuff"
+    #prompt=prompt  # optional, or omit for default
 )
 
+qa = create_retrieval_chain(
+    retriever,
+    document_chain
+)
 
 
 
@@ -82,8 +88,19 @@ def main():
                 input_txt = "".join(doc.page_content for doc in docs)
                 truncated = input_txt[:8000]
 
-                response = LLM.invoke(f"Update this lesson plan based on this prompt: {prompt}: {truncated}")
-                st.text_area("Updated Lesson Plan", response, height=300)
+                query = f"""
+                Update the following lesson plan using best practices from the provided educational research.
+                User request: {prompt}
+
+                Lesson plan:
+                {truncated}
+                """
+
+                result = qa.invoke({"input": query})
+
+                answer = result["answer"]
+
+                st.text_area("Updated Lesson Plan", answer, height=300)
 
 
 if __name__ == "__main__":
