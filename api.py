@@ -25,6 +25,7 @@ from langchain_community.vectorstores import FAISS
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.document_loaders import PyMuPDFLoader
 from langchain_openai import ChatOpenAI
+from langchain.messages import HumanMessage
 # -----------------------
 # App start
 # -----------------------
@@ -79,7 +80,7 @@ LLM = ChatOpenAI(model_name="gpt-3.5-turbo", temperature=0)
 # -----------------------
 def run_rag(vectorstore, prompt_text):
     # Search top k relevant chunks
-    docs = vectorstore.similarity_search(prompt_text, k=4)  # langchain_community FAISS
+    docs = vectorstore.similarity_search(prompt_text, k=4)
     context_text = "\n\n".join([doc.page_content for doc in docs])
 
     final_prompt = f"""
@@ -94,10 +95,10 @@ Lesson plan and request:
 {prompt_text}
 """
 
-    # Correct way to call ChatOpenAI in 1.2.7
-    response = LLM.generate([final_prompt])
+    # Wrap string in HumanMessage for ChatOpenAI
+    messages = [HumanMessage(content=final_prompt)]
+    response = LLM.generate([messages])
     return response.generations[0][0].text
-
 # -----------------------
 # Streamlit UI
 # -----------------------
