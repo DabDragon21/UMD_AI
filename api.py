@@ -5,7 +5,7 @@ import streamlit as st
 
 st.write("langchain version:", langchain.__version__)
 st.write("langchain_core version:", langchain_core.__version__)
-st.write("langchain.chains contents:", dir(langchain.chains))
+#st.write("langchain.chains contents:", dir(langchain.chains))
 
 import google.generativeai as genai
 from langchain_text_splitters import RecursiveCharacterTextSplitter
