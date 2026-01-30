@@ -53,7 +53,7 @@ vectorstore = None
 
 if os.path.exists(vectorstore_path):
     st.write("🔄 Loading cached vectorstore...")
-    vectorstore = FAISS.load_local(vectorstore_path, embeddings)
+    vectorstore = FAISS.load_local(vectorstore_path, embeddings, allow_dangerous_deserialization=True) #FROM MY OWN DOWNLOADS ONLY!
 else:
     st.write("⚙️ Building new vectorstore...")
     all_docs = []
