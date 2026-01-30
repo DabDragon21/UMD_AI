@@ -51,6 +51,7 @@ else:
 
     splitter = RecursiveCharacterTextSplitter(chunk_size=256, chunk_overlap=64)
     chunks = splitter.split_documents(all_docs)
+    chunks = chunks[:50]
 
     vectorstore = FAISS.from_documents(chunks, embeddings)
     vectorstore.save_local(vectorstore_path)
