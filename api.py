@@ -99,7 +99,6 @@ Lesson plan and request:
 """
 
     # Generate text using ChatOpenAI
-    LLM = ChatOpenAI(model_name="gpt-3.5-turbo", temperature=0)
     response = LLM(final_prompt)  # __call__ is correct
     return response
 
@@ -125,5 +124,5 @@ if uploaded_file and prompt:
             truncated = input_txt[:8000]  # truncate if very long
 
             # Run RAG
-            output = run_rag(prompt_text=f"{prompt}\n\nLesson plan:\n{truncated}")
+            output = run_rag(vectorstore, f"{prompt}\n\nLesson plan:\n{truncated}")
             st.text_area("Updated Lesson Plan", output, height=300)
