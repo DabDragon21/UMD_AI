@@ -72,24 +72,16 @@ else:
 # -----------------------
 # Setup LLM
 # -----------------------
-LLM = ChatOpenAI(model_name="text-embedding-3-small", temperature=0)
+LLM = ChatOpenAI(model_name="gpt-3.5-turbo", temperature=0)
 
 # -----------------------
 # Build simple RAG function
 # -----------------------
 def run_rag(vectorstore, prompt_text):
-    """
-    Run a RAG retrieval using FAISS vectorstore as retriever
-    and generate a response with ChatOpenAI.
-    """
-    # Make sure vectorstore is loaded
-    if vectorstore is None:
-        raise ValueError("Vectorstore is not loaded")
-
-    # Cast to retriever
+    # Cast FAISS vectorstore to retriever
     retriever = vectorstore.as_retriever(search_kwargs={"k": 4})
 
-    # Get relevant docs
+    # Retrieve relevant documents
     docs = retriever.get_relevant_documents(prompt_text)
     context_text = "\n\n".join([doc.page_content for doc in docs])
 
@@ -106,10 +98,11 @@ Lesson plan and request:
 {prompt_text}
 """
 
-    # LLM call (correct usage for 1.2.7)
-    LLM = ChatOpenAI(model_name="text-embedding-3-small", temperature=0)
-    response = LLM(final_prompt)  # __call__ instead of .call()
+    # Generate text using ChatOpenAI
+    LLM = ChatOpenAI(model_name="gpt-3.5-turbo", temperature=0)
+    response = LLM(final_prompt)  # __call__ is correct
     return response
+
 
 # -----------------------
 # Streamlit UI
