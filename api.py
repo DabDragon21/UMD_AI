@@ -79,17 +79,21 @@ LLM = ChatOpenAI(model_name="text-embedding-3-small", temperature=0)
 # -----------------------
 def run_rag(vectorstore, prompt_text):
     """
-    Run a simple RAG retrieval using a vectorstore cast to a retriever.
+    Run a RAG retrieval using FAISS vectorstore as retriever
+    and generate a response with ChatOpenAI.
     """
-    # Cast vectorstore to retriever
+    # Make sure vectorstore is loaded
+    if vectorstore is None:
+        raise ValueError("Vectorstore is not loaded")
+
+    # Cast to retriever
     retriever = vectorstore.as_retriever(search_kwargs={"k": 4})
 
-    # This is per docs: retrievers accept a string and return Document objects
+    # Get relevant docs
     docs = retriever.get_relevant_documents(prompt_text)
-
-    # Merge content
     context_text = "\n\n".join([doc.page_content for doc in docs])
 
+    # Build final prompt
     final_prompt = f"""
 You are an expert educational assistant.
 Use the following research excerpts to improve the lesson plan.
@@ -102,10 +106,11 @@ Lesson plan and request:
 {prompt_text}
 """
 
-    # LLM call
+    # LLM call (correct usage for 1.2.7)
     LLM = ChatOpenAI(model_name="text-embedding-3-small", temperature=0)
-    response = LLM.call(final_prompt)
+    response = LLM(final_prompt)  # __call__ instead of .call()
     return response
+
 # -----------------------
 # Streamlit UI
 # -----------------------
