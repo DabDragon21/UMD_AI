@@ -32,6 +32,15 @@ databases = [
 vectorstore_path = "edu_faiss_index"
 embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
 
+st.write("Embedding test…")
+
+try:
+    test = embeddings.embed_query("test")
+    st.write("✅ Embeddings working")
+except Exception as e:
+    st.write("❌ Embeddings failed:", e)
+    st.stop()
+
 # load saved vector or store new vectors
 if os.path.exists(vectorstore_path):
     print("🔄 Loading cached vectorstore...")
@@ -45,7 +54,7 @@ else:
         all_bases.extend(docs)
 
     # Chunk text
-    splitter = RecursiveCharacterTextSplitter(chunk_size=256, chunk_overlap=64)
+    splitter = RecursiveCharacterTextSplitter(chunk_size=200, chunk_overlap=40)
     chunks = splitter.split_documents(all_bases)
 
     # Create vectorstore and save
