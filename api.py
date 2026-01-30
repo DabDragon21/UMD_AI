@@ -10,10 +10,10 @@ os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_KEY"]
 # ✅ Imports (updated for latest LangChain)
 # -----------------------
 from langchain_openai import OpenAIEmbeddings # replaces langchain_openai
-from langchain.vectorstores import FAISS                # works with langchain-community vectorstores
-from langchain.text_splitter import RecursiveCharacterTextSplitter  # updated import path
-from langchain.document_loaders import PyMuPDFLoader    # updated import path
-from langchain.chat_models import ChatOpenAI            # replaces old LLM import
+from langchain_community.vectorstores import FAISS
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_community.document_loaders import PyMuPDFLoader
+from langchain_openai import ChatOpenAI
 
 # -----------------------
 # App start
