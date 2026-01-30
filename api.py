@@ -6,10 +6,9 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import FAISS
 from langchain_google_genai import GoogleGenerativeAIEmbeddings, GoogleGenerativeAI
 from langchain_community.document_loaders import PyMuPDFLoader
-from langchain.chains import create_retrieval_chain
-from langchain.chains.combine_documents import create_stuff_documents_chain
+from langchain.chains.retrieval import create_retrieval_chain
+from langchain.chains.combine_documents.stuff import create_stuff_documents_chain
 
-st.write("LangChain community loaded")
 
 api_key = st.secrets["key"]
 os.environ["GOOGLE_API_KEY"] = api_key
@@ -53,16 +52,11 @@ LLM = GoogleGenerativeAI(model="gemini-2.5-pro")
 
 #build RAG
 retriever = vectorstore.as_retriever()
-
 document_chain = create_stuff_documents_chain(
-    llm=LLM,
-    #prompt=prompt  # optional, or omit for default
-)
+    llm=LLM #prompt=prompt # optional, or omit for default
+    )
 
-qa = create_retrieval_chain(
-    retriever,
-    document_chain
-)
+qa = create_retrieval_chain( retriever, document_chain )
 
 
 
