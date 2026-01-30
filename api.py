@@ -4,7 +4,18 @@ import streamlit as st
 # -----------------------
 # ✅ Set API key
 # -----------------------
-os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_KEY"]
+OPENAI_KEY = os.getenv("OPENAI_API_KEY")  # check env variable
+if not OPENAI_KEY:
+    try:
+        OPENAI_KEY = st.secrets["OPENAI_KEY"]
+    except Exception:
+        # Prompt for key locally (or set manually)
+        import getpass
+        OPENAI_KEY = getpass.getpass("Enter your OpenAI API key: ")
+
+os.environ["OPENAI_API_KEY"] = OPENAI_KEY
+
+
 
 # -----------------------
 # ✅ Imports (updated for latest LangChain)
@@ -35,6 +46,8 @@ databases = [
 ]
 
 vectorstore_path = "edu_faiss_index"
+if not os.path.exists(vectorstore_path):
+    os.makedirs(vectorstore_path)
 embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
 vectorstore = None
 
