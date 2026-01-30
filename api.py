@@ -72,21 +72,26 @@ else:
 # -----------------------
 # Setup LLM
 # -----------------------
-LLM = ChatOpenAI(model_name="gpt-3.5-turbo", temperature=0)
+LLM = ChatOpenAI(model_name="text-embedding-3-small", temperature=0)
 
 # -----------------------
 # Build simple RAG function
 # -----------------------
-def run_rag(prompt_text, additional_docs=None):
+def run_rag(vectorstore, prompt_text):
+    """
+    Run a simple RAG retrieval using a vectorstore cast to a retriever.
+    """
+    # Cast vectorstore to retriever
     retriever = vectorstore.as_retriever(search_kwargs={"k": 4})
-    query = prompt_text
 
-    # Retrieve relevant chunks
-    docs = retriever.get_relevant_documents(query)
+    # This is per docs: retrievers accept a string and return Document objects
+    docs = retriever.get_relevant_documents(prompt_text)
+
+    # Merge content
     context_text = "\n\n".join([doc.page_content for doc in docs])
 
     final_prompt = f"""
-You are an expert education assistant.
+You are an expert educational assistant.
 Use the following research excerpts to improve the lesson plan.
 If the research is irrelevant, say so explicitly.
 
@@ -94,12 +99,13 @@ Research context:
 {context_text}
 
 Lesson plan and request:
-{query}
+{prompt_text}
 """
 
+    # LLM call
+    LLM = ChatOpenAI(model_name="text-embedding-3-small", temperature=0)
     response = LLM.call(final_prompt)
     return response
-
 # -----------------------
 # Streamlit UI
 # -----------------------
