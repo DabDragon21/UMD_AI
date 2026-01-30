@@ -6,7 +6,7 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import FAISS
 from langchain_google_genai import GoogleGenerativeAIEmbeddings, GoogleGenerativeAI
 from langchain_community.document_loaders import PyMuPDFLoader
-from langchain.chains.retrieval_qa.base import RetrievalQA
+from langchain.chains import RetrievalQA
 
 st.write("LangChain community loaded")
 
