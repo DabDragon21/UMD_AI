@@ -1,13 +1,20 @@
 import os
-import langchain_community
+import langchain
+import langchain_core
 import streamlit as st
+
+st.write("langchain version:", langchain.__version__)
+st.write("langchain_core version:", langchain_core.__version__)
+st.write("langchain.chains contents:", dir(langchain.chains))
+
 import google.generativeai as genai
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import FAISS
 from langchain_google_genai import GoogleGenerativeAIEmbeddings, GoogleGenerativeAI
 from langchain_community.document_loaders import PyMuPDFLoader
-from langchain.chains.retrieval import create_retrieval_chain
-from langchain.chains.combine_documents.stuff import create_stuff_documents_chain
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.runnables import RunnablePassthrough
+
 
 
 api_key = st.secrets["key"]
@@ -52,11 +59,32 @@ LLM = GoogleGenerativeAI(model="gemini-2.5-pro")
 
 #build RAG
 retriever = vectorstore.as_retriever()
-document_chain = create_stuff_documents_chain(
-    llm=LLM #prompt=prompt # optional, or omit for default
-    )
+prompt_template = ChatPromptTemplate.from_template("""
+You are an expert education assistant.
 
-qa = create_retrieval_chain(retriever, document_chain )
+Use the following research excerpts to improve the lesson plan.
+If the research is irrelevant, say so explicitly.
+
+Research context:
+{context}
+
+Lesson plan and request:
+{input}
+""")
+
+retriever = vectorstore.as_retriever(search_kwargs={"k": 4})
+
+def format_docs(docs):
+    return "\n\n".join(doc.page_content for doc in docs)
+
+rag_chain = (
+    {
+        "context": retriever | format_docs,
+        "input": RunnablePassthrough(),
+    }
+    | prompt_template
+    | LLM
+)
 
 
 
@@ -83,19 +111,18 @@ def main():
                 truncated = input_txt[:8000]
 
                 query = f"""
-                Update the following lesson plan using best practices from the provided educational research.
-                User request: {prompt}
+                Update the following lesson plan using best practices from educational research.
+
+                User request:
+                {prompt}
 
                 Lesson plan:
                 {truncated}
                 """
 
-                result = qa.invoke({"input": query})
-
-                answer = result["answer"]
+                answer = rag_chain.invoke(query)
 
                 st.text_area("Updated Lesson Plan", answer, height=300)
-
 
 if __name__ == "__main__":
     main()
