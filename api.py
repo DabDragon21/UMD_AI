@@ -56,7 +56,7 @@ document_chain = create_stuff_documents_chain(
     llm=LLM #prompt=prompt # optional, or omit for default
     )
 
-qa = create_retrieval_chain( retriever, document_chain )
+qa = create_retrieval_chain(retriever, document_chain )
 
 
 
