@@ -10,7 +10,9 @@ st.write("langchain_core version:", langchain_core.__version__)
 import google.generativeai as genai
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import FAISS
-from langchain_google_genai import GoogleGenerativeAIEmbeddings, GoogleGenerativeAI
+#from langchain_google_genai import GoogleGenerativeAIEmbeddings, GoogleGenerativeAI
+from langchain.embeddings import OpenAIEmbeddings
+from langchain.chat_models import ChatOpenAI
 from langchain_community.document_loaders import PyMuPDFLoader
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnablePassthrough
@@ -18,7 +20,7 @@ from langchain_core.runnables import RunnablePassthrough
 
 
 api_key = st.secrets["key"]
-os.environ["GOOGLE_API_KEY"] = api_key
+os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_KEY"]
 
 #load file
 databases = [
@@ -30,7 +32,9 @@ databases = [
     "CS_Content.pdf"
 ]
 vectorstore_path = "edu_faiss_index"
-embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
+#embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
+embeddings = OpenAIEmbeddings(model="text-embedding-3-small")  # or "text-embedding-3-large"
+
 
 st.write("Embedding test…")
 
@@ -64,7 +68,9 @@ else:
     st.write("Vectorstore saved")
 
 #set up LLM
-LLM = GoogleGenerativeAI(model="gemini-2.5-pro")
+#LLM = GoogleGenerativeAI(model="gemini-2.5-pro")
+LLM = ChatOpenAI(model_name="gpt-3.5-turbo", temperature=0)
+
 
 #build RAG
 retriever = vectorstore.as_retriever()
