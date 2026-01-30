@@ -7,13 +7,13 @@ import streamlit as st
 os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_KEY"]
 
 # -----------------------
-# ✅ Imports
+# ✅ Imports (updated for latest LangChain)
 # -----------------------
-from langchain.embeddings.openai import OpenAIEmbeddings
-from langchain.chat_models import ChatOpenAI
-from langchain_community.vectorstores import FAISS
-from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_community.document_loaders import PyMuPDFLoader
+from langchain.embeddings import OpenAIEmbeddings        # replaces langchain_openai
+from langchain.vectorstores import FAISS                # works with langchain-community vectorstores
+from langchain.text_splitter import RecursiveCharacterTextSplitter  # updated import path
+from langchain.document_loaders import PyMuPDFLoader    # updated import path
+from langchain.chat_models import ChatOpenAI            # replaces old LLM import
 
 # -----------------------
 # App start
@@ -51,9 +51,6 @@ else:
 
     splitter = RecursiveCharacterTextSplitter(chunk_size=256, chunk_overlap=64)
     chunks = splitter.split_documents(all_docs)
-
-    # Optional: limit chunks if you hit quota issues
-    # chunks = chunks[:50]
 
     vectorstore = FAISS.from_documents(chunks, embeddings)
     vectorstore.save_local(vectorstore_path)
