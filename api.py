@@ -78,8 +78,8 @@ LLM = ChatOpenAI(model_name="gpt-3.5-turbo", temperature=0)
 # Build simple RAG function
 # -----------------------
 def run_rag(vectorstore, prompt_text):
-    # Search for top k relevant chunks
-    docs = vectorstore.similarity_search(prompt_text, k=4)  # works in langchain_community FAISS
+    # Search top k relevant chunks
+    docs = vectorstore.similarity_search(prompt_text, k=4)  # langchain_community FAISS
     context_text = "\n\n".join([doc.page_content for doc in docs])
 
     final_prompt = f"""
@@ -94,8 +94,10 @@ Lesson plan and request:
 {prompt_text}
 """
 
-    response = LLM(final_prompt)
-    return response
+    # Correct way to call ChatOpenAI in 1.2.7
+    response = LLM.generate([final_prompt])
+    return response.generations[0][0].text
+
 # -----------------------
 # Streamlit UI
 # -----------------------
